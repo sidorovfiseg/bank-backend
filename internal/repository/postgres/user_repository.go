@@ -5,6 +5,7 @@ import (
 	"context"
 	"log/slog"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -22,11 +23,10 @@ func (userRepository *UserRepository) Save(ctx context.Context, user *domain.Use
 	
 	slog.Info("insert user in db user")
 
-	_, err := userRepository.dbpool.Exec(ctx, `INSERT INTO users (user_id, login, email, password) 
-																			VALUES($1, $2, $3, $4);`, 
+	_, err := userRepository.dbpool.Exec(ctx, `INSERT INTO users (user_id, login, password) 
+																			VALUES($1, $2, $3);`, 
 																			user.GetId(), 
 																			user.GetLogin(), 
-																			user.GetEmail(), 
 																			user.GetPasswordHash())
 	
 	if err != nil {
@@ -36,4 +36,20 @@ func (userRepository *UserRepository) Save(ctx context.Context, user *domain.Use
 	return err
 }
 
-// func (userRepository *UserRepository) FindByName(ctx context.Context, name string) 
+func (userRepository *UserRepository) FindByName(ctx context.Context, login string) (*domain.User, error) {
+	var (
+		id uuid.UUID
+		password []byte
+	)
+
+	err := userRepository.dbpool.QueryRow(ctx, "SELECT user_id, password FROM user WHERE login=$1;", login).Scan(&id, &password)
+
+	if err != nil {
+		slog.Error("find user", err)
+		return nil, err
+	}
+
+	user := domain.NewUser(id, login, password)
+	return user, err
+
+} 

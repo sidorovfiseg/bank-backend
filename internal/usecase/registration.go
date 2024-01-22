@@ -10,24 +10,23 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type CreateCommand struct {
+type RegistrationCommand struct {
 	Login string
-	Email string
 	Password []byte
 }
 
-type CreateUserUseCase struct {
+type RegistrationUseCase struct {
 	userRepository domain.UserRepository
 }
 
-func NewCreateUserUseCase(userRepository domain.UserRepository) *CreateUserUseCase {
-	return &CreateUserUseCase{
+func NewRegistrationUseCase(userRepository domain.UserRepository) *RegistrationUseCase {
+	return &RegistrationUseCase{
 		userRepository: userRepository,
 	}
 }
 
 
-func (useCase *CreateUserUseCase) CreateUserHandler(ctx context.Context, command *CreateCommand) (string, error) {
+func (useCase *RegistrationUseCase) RegistrationHandler(ctx context.Context, command *RegistrationCommand) (string, error) {
 	passwordHash, err := bcrypt.GenerateFromPassword(command.Password, bcrypt.DefaultCost)
 
 	if (err != nil) {
@@ -35,7 +34,7 @@ func (useCase *CreateUserUseCase) CreateUserHandler(ctx context.Context, command
 		return "", err
 	}
 
-	user := domain.NewUser(uuid.New(), command.Login, command.Email, passwordHash)
+	user := domain.NewUser(uuid.New(), command.Login, passwordHash)
 	err = useCase.userRepository.Save(ctx, user)
 
 	if err != nil {
