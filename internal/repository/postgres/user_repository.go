@@ -21,7 +21,7 @@ func NewUserRepository(dbpool *pgxpool.Pool) *UserRepository {
 
 func (userRepository *UserRepository) Save(ctx context.Context, user *domain.User) error {
 	
-	slog.Info("insert user in db user")
+	slog.Info("user registration")
 
 	_, err := userRepository.dbpool.Exec(ctx, `INSERT INTO users (user_id, login, password) 
 																			VALUES($1, $2, $3);`, 

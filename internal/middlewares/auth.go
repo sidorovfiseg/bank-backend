@@ -1,11 +1,15 @@
 package middlewares
 
 import (
-	"net/http"
+	"context"
+	"github.com/google/uuid"
 )
 
-func Auth(handler http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		auth := r.Header.Get("Authorization")
-	})
+type key struct {
+}
+
+func GetIdFromContext(ctx context.Context) uuid.UUID {
+	token, _ := ctx.Value(key{}).(uuid.UUID)
+
+	return token
 }

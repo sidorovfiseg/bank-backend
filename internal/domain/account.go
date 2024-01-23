@@ -1,6 +1,10 @@
 package domain
 
-import "github.com/google/uuid"
+import (
+	"context"
+
+	"github.com/google/uuid"
+)
 
 type Account struct {
 	id uuid.UUID
@@ -9,9 +13,9 @@ type Account struct {
 	userId uuid.UUID
 }
 
-func NewAccount(name string, balance float64, userId uuid.UUID) *Account {
+func NewAccount(id uuid.UUID, name string, balance float64, userId uuid.UUID) *Account {
 	return &Account{
-		id: uuid.New(),
+		id: id,
 		name: name,
 		balance: balance,
 		userId: userId,
@@ -22,31 +26,34 @@ func (account *Account) SetId(id uuid.UUID) {
 	account.id = id
 }
 
-func (account *Account) setName(name string) {
+func (account *Account) SetName(name string) {
 	account.name = name
 }
 
-func (account *Account) setBalance(balance float64) {
+func (account *Account) SetBalance(balance float64) {
 	account.balance = balance
 }
 
-func (account *Account) setUserId(userId uuid.UUID) {
+func (account *Account) SetUserId(userId uuid.UUID) {
 	account.userId = userId
 }
 
-// get account id
-func (account *Account) getId() uuid.UUID {
+func (account *Account) GetId() uuid.UUID {
 	return account.id
 }
 
-func (account *Account) getName() string {
+func (account *Account) GetName() string {
 	return account.name
 }
 
-func (account *Account) getBalance() float64 {
+func (account *Account) GetBalance() float64 {
 	return account.balance
 }
 
-func (account *Account) getUserId() uuid.UUID {
+func (account *Account) GetUserId() uuid.UUID {
 	return account.userId
+}
+
+type AccountRepository interface{
+	Save(ctx context.Context, account *Account) error
 }
