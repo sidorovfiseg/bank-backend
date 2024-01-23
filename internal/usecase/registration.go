@@ -29,7 +29,7 @@ func NewRegistrationUseCase(userRepository domain.UserRepository) *RegistrationU
 func (useCase *RegistrationUseCase) RegistrationHandler(ctx context.Context, command *RegistrationCommand) (string, error) {
 	passwordHash, err := bcrypt.GenerateFromPassword(command.Password, bcrypt.DefaultCost)
 
-	if (err != nil) {
+	if err != nil {
 		slog.Error("generating password", err)
 		return "", err
 	}

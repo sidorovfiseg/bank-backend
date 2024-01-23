@@ -3,6 +3,10 @@ package usecase
 import (
 	"bank-backend/internal/domain"
 	"context"
+	"log/slog"
+	"os"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 type LoginCommand struct {
@@ -20,9 +24,20 @@ func NewLoginUseCase(userRepository domain.UserRepository) *LoginUseCase{
 	}
 }
 
-
-
 func (useCase *LoginUseCase) LoginHandler(ctx context.Context, command *LoginCommand) (string, error) {
 		user, err := useCase.userRepository.FindByName(ctx, command.Login)
-		return user, err
+		
+		if err != nil {
+			slog.Error("user not found", err)
+			return "", err
+		}
+
+		err = bcrypt.CompareHashAndPassword(user.GetPasswordHash(), command.Password)
+
+		if err != nil {
+			slog.Error("password incorrect", err)
+			return "", err
+		}
+
+		return CreateToken(user, os.Getenv("SECRET_KEY"))
 }

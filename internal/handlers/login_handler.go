@@ -5,8 +5,6 @@ import (
 	"encoding/json"
 	"log/slog"
 	"net/http"
-
-	"github.com/golang-jwt/jwt/v5/request"
 )
 
 type POSTLoginHandler struct {
@@ -28,6 +26,7 @@ type POSTLoginResponse struct {
 	Token []byte `json:"token"`
 }
 
+// Обработка запроса на аутентифыикацию, возвращение токена 
 func (h *POSTLoginHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	var body POSTLoginRequest
 
@@ -39,6 +38,19 @@ func (h *POSTLoginHandler) ServeHTTP(writer http.ResponseWriter, request *http.R
 		return 
 	}
 
+	token, err := h.useCase.LoginHandler(request.Context(), &usecase.LoginCommand{
+		Login: body.Login,
+		Password: []byte (body.Password),
+	})
+
+	if err != nil {
+		slog.Error("login incorrect credentials")
+		http.Error(writer, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	writer.Header().Set("Authorization", token)
+	writer.WriteHeader(http.StatusOK)
 	
 
 }
