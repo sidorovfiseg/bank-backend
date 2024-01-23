@@ -8,7 +8,7 @@ import (
 type key struct {
 }
 
-func GetIdFromContext(ctx context.Context) uuid.UUID {
+func GetUserIdFromContext(ctx context.Context) uuid.UUID {
 	token, _ := ctx.Value(key{}).(uuid.UUID)
 
 	return token

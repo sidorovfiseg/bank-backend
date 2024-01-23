@@ -31,10 +31,25 @@ type POSTCreateAccountResponse struct {
 	userId uuid.UUID `json:"user_id"`
 }
 
+func (responce *POSTCreateAccountResponse) MarshalJSON() ([]byte, error) {
+	return json.Marshal(struct {
+		ID uuid.UUID `json:"id"`
+		Name string `json:"string"`
+		Balance float64 `json:"balance"`
+		UserId uuid.UUID `json:"user_id"`
+	} {
+		ID: responce.id,
+		Name: responce.name,
+		Balance: responce.balance,
+		UserId: responce.userId,
+	})
+}
+
+
 func (h *POSTCreateAccountHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	
 	var body POSTCreateAccountRequest
-	userId := middlewares.GetIdFromContext(request.Context())
+	userId := middlewares.GetUserIdFromContext(request.Context())
 
 	err := json.NewDecoder(request.Body).Decode(&body)
 	if err != nil {
