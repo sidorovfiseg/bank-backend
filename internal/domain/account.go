@@ -9,11 +9,11 @@ import (
 type Account struct {
 	id uuid.UUID
 	name string
-	balance float64
+	balance int
 	userId uuid.UUID
 }
 
-func NewAccount(id uuid.UUID, name string, balance float64, userId uuid.UUID) *Account {
+func NewAccount(id uuid.UUID, name string, balance int, userId uuid.UUID) *Account {
 	return &Account{
 		id: id,
 		name: name,
@@ -30,7 +30,7 @@ func (account *Account) SetName(name string) {
 	account.name = name
 }
 
-func (account *Account) SetBalance(balance float64) {
+func (account *Account) SetBalance(balance int) {
 	account.balance = balance
 }
 
@@ -46,7 +46,7 @@ func (account *Account) GetName() string {
 	return account.name
 }
 
-func (account *Account) GetBalance() float64 {
+func (account *Account) GetBalance() int {
 	return account.balance
 }
 

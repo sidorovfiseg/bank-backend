@@ -24,7 +24,7 @@ func NewGETAccountsHandler(getAccountsUseCase *usecase.GetAccountsUseCase) *GETA
 type GETAccountsResponse struct {
 	id uuid.UUID
 	name string 
-	balance float64
+	balance int
 	userId uuid.UUID
 }
 
@@ -66,7 +66,7 @@ func (response *GETAccountsResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		ID uuid.UUID `json:"id"`
 		Name string `json:"name"`
-		Balance float64 `json:"balance"`
+		Balance int `json:"balance"`
 		UserId uuid.UUID `json:"user_id"`
 	}{
 		ID: response.id,

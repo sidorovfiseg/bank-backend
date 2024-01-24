@@ -27,7 +27,7 @@ type POSTCreateAccountRequest struct {
 type POSTCreateAccountResponse struct {
 	id uuid.UUID `json:"id"`
 	name string		`json:"name"`
-	balance float64 `json:"balance"`
+	balance int `json:"balance"`
 	userId uuid.UUID `json:"user_id"`
 }
 
@@ -35,7 +35,7 @@ func (responce *POSTCreateAccountResponse) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		ID uuid.UUID `json:"id"`
 		Name string `json:"string"`
-		Balance float64 `json:"balance"`
+		Balance int `json:"balance"`
 		UserId uuid.UUID `json:"user_id"`
 	} {
 		ID: responce.id,

@@ -40,7 +40,7 @@ func (accountRepository *AccountRepository) FindByName(ctx context.Context, name
 	
 	var (
 		id uuid.UUID
-		balance float64
+		balance int
 	)
 	slog.Info("searching account")
 
@@ -73,7 +73,7 @@ func (accountRepository *AccountRepository) FindAccountsWithFilter(ctx context.C
 	for rows.Next() {
 		var (
 			id uuid.UUID
-			balance float64
+			balance int
 		)
 		err = rows.Scan(
 			&id,
