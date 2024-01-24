@@ -45,7 +45,7 @@ func (accountRepository *AccountRepository) FindByName(ctx context.Context, name
 	slog.Info("searching account")
 
 	err := accountRepository.dbpool.QueryRow(ctx, `SELECT (account_id, balance) 
-	FROM accounts WHERE name=$1 AND user_id=$2`, 
+	FROM accounts WHERE name=$1 AND user_id=$2;`, 
 	name, userId).Scan(&id, &balance)
 
 	if err != nil {
@@ -54,6 +54,27 @@ func (accountRepository *AccountRepository) FindByName(ctx context.Context, name
 	}
 
 	account := domain.NewAccount(id, name, balance, userId)
+
+	return account, err
+}
+
+func (accountRepository *AccountRepository) FindAccountById(ctx context.Context, id uuid.UUID) (*domain.Account, error) {
+	var (
+		name string
+		balance int
+		user_id uuid.UUID
+	)
+	slog.Info("searching account by id")
+
+	err := accountRepository.dbpool.QueryRow(ctx, `SELECT (name, balance, user_id) FROM accounts 
+	WHERE account_id=$1;`, id).Scan(&name, &balance, &user_id)
+
+	if err != nil {
+		slog.Error("find account by id", err)
+		return nil, err
+	}
+
+	account := domain.NewAccount(id, name, balance, user_id)
 
 	return account, err
 }
@@ -91,8 +112,8 @@ func (accountRepository *AccountRepository) FindAccountsWithFilter(ctx context.C
 	return accounts, err
 }
 
-func (accountRepository *AccountRepository) UpdateBalance(ctx context.Context, id uuid.UUID, newBalance int) error {
-	_, err := accountRepository.dbpool.Exec(ctx, "UPDATE account SET balance = $2 WHERE account_id=$1", id, newBalance)
+func (accountRepository *AccountRepository) UpdateBalance(ctx context.Context, id uuid.UUID, amount int) error {
+	_, err := accountRepository.dbpool.Exec(ctx, "UPDATE account SET balance = balance + $2 WHERE account_id=$1;", id, amount)
 	if err != nil {
 		return err
 	}

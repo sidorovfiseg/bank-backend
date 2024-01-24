@@ -57,5 +57,7 @@ func (account *Account) GetUserId() uuid.UUID {
 type AccountRepository interface{
 	Save(ctx context.Context, account *Account) error
 	FindByName(ctx context.Context, name string, userId uuid.UUID) (*Account, error)
+	FindAccountById(ctx context.Context, id uuid.UUID) (*Account, error)
 	FindAccountsWithFilter(ctx context.Context, name string, userId uuid.UUID, itemsPerPage int, page int) ([]Account, error)
+	UpdateBalance(ctx context.Context, id uuid.UUID, amount int) error
 }
