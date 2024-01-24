@@ -90,3 +90,11 @@ func (accountRepository *AccountRepository) FindAccountsWithFilter(ctx context.C
 
 	return accounts, err
 }
+
+func (accountRepository *AccountRepository) UpdateBalance(ctx context.Context, id uuid.UUID, newBalance int) error {
+	_, err := accountRepository.dbpool.Exec(ctx, "UPDATE account SET balance = $2 WHERE account_id=$1", id, newBalance)
+	if err != nil {
+		return err
+	}
+	return err
+}
