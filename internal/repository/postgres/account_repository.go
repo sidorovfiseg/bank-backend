@@ -2,27 +2,27 @@ package postgres
 
 import (
 	"bank-backend/internal/domain"
+	"bank-backend/internal/pkg/persistence"
 	"context"
 	"log/slog"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type AccountRepository struct {
-	dbpool *pgxpool.Pool
+	connection persistence.Connection
 }
 
-func NewAccountRepository(dbpool *pgxpool.Pool) *AccountRepository {
+func NewAccountRepository(connection persistence.Connection) *AccountRepository {
 	return &AccountRepository{
-		dbpool: dbpool,
+		connection: connection,
 	}
 }
 
 func (accountRepository *AccountRepository) Save(ctx context.Context, account *domain.Account) error {
 	slog.Info("creating account")
 
-	_, err := accountRepository.dbpool.Exec(ctx, `INSERT INTO accounts (account_id, name, balance, user_id) 
+	_, err := accountRepository.connection.Exec(ctx, `INSERT INTO accounts (account_id, name, balance, user_id) 
 	VALUES($1, $2, $3, $4);`,
 	account.GetId(),
 	account.GetName(),
@@ -44,7 +44,7 @@ func (accountRepository *AccountRepository) FindByName(ctx context.Context, name
 	)
 	slog.Info("searching account")
 
-	err := accountRepository.dbpool.QueryRow(ctx, `SELECT (account_id, balance) 
+	err := accountRepository.connection.QueryRow(ctx, `SELECT (account_id, balance) 
 	FROM accounts WHERE name=$1 AND user_id=$2;`, 
 	name, userId).Scan(&id, &balance)
 
@@ -66,7 +66,7 @@ func (accountRepository *AccountRepository) FindAccountById(ctx context.Context,
 	)
 	slog.Info("searching account by id")
 
-	err := accountRepository.dbpool.QueryRow(ctx, `SELECT (name, balance, user_id) FROM accounts 
+	err := accountRepository.connection.QueryRow(ctx, `SELECT (name, balance, user_id) FROM accounts 
 	WHERE account_id=$1;`, id).Scan(&name, &balance, &user_id)
 
 	if err != nil {
@@ -84,7 +84,7 @@ func (accountRepository *AccountRepository) FindAccountsWithFilter(ctx context.C
 	var accounts []domain.Account
 	slog.Info("searching accounts")
 	
-	rows, err := accountRepository.dbpool.Query(ctx, `SELECT (account_id, name, balance) FROM accounts WHERE user_id=$1 AND name LIKE %$2% LIMIT $3 OFFSET $4;`, userId, name, itemsPerPage, page)
+	rows, err := accountRepository.connection.Query(ctx, `SELECT (account_id, name, balance) FROM accounts WHERE user_id=$1 AND name LIKE %$2% LIMIT $3 OFFSET $4;`, userId, name, itemsPerPage, page)
 
 	if err != nil {
 		slog.Error("seacrching accounts", err)
@@ -113,7 +113,7 @@ func (accountRepository *AccountRepository) FindAccountsWithFilter(ctx context.C
 }
 
 func (accountRepository *AccountRepository) UpdateBalance(ctx context.Context, id uuid.UUID, amount int) error {
-	_, err := accountRepository.dbpool.Exec(ctx, "UPDATE account SET balance = balance + $2 WHERE account_id=$1;", id, amount)
+	_, err := accountRepository.connection.Exec(ctx, "UPDATE account SET balance = balance + $2 WHERE account_id=$1;", id, amount)
 	if err != nil {
 		return err
 	}

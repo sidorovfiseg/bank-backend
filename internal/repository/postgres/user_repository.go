@@ -2,20 +2,20 @@ package postgres
 
 import (
 	"bank-backend/internal/domain"
+	"bank-backend/internal/pkg/persistence"
 	"context"
 	"log/slog"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type UserRepository struct {
-	dbpool *pgxpool.Pool
+	connection persistence.Connection
 }
 
-func NewUserRepository(dbpool *pgxpool.Pool) *UserRepository {
+func NewUserRepository(connection persistence.Connection) *UserRepository {
 	return &UserRepository{
-		dbpool: dbpool,
+		connection: connection,
 	}
 }
 
@@ -23,7 +23,7 @@ func (userRepository *UserRepository) Save(ctx context.Context, user *domain.Use
 	
 	slog.Info("user registration")
 
-	_, err := userRepository.dbpool.Exec(ctx, `INSERT INTO users (user_id, login, password) 
+	_, err := userRepository.connection.Exec(ctx, `INSERT INTO users (user_id, login, password) 
 																			VALUES($1, $2, $3);`, 
 																			user.GetId(), 
 																			user.GetLogin(), 
@@ -42,7 +42,7 @@ func (userRepository *UserRepository) FindByName(ctx context.Context, login stri
 		password []byte
 	)
 
-	err := userRepository.dbpool.QueryRow(ctx, "SELECT user_id, password FROM user WHERE login=$1;", login).Scan(&id, &password)
+	err := userRepository.connection.QueryRow(ctx, "SELECT user_id, password FROM user WHERE login=$1;", login).Scan(&id, &password)
 
 	if err != nil {
 		slog.Error("find user", err)
